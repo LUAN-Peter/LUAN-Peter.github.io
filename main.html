@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> 交通银行大厦到东坝 </title>
+    <style>
+        html,
+        body,
+        #map {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .demo-title {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0;
+            color: rgb(180, 180, 190);
+        }
+
+        h3 {
+            font-size: 12px;
+            font-weight: normal;
+            margin-top: 5px;
+            color: rgb(150, 150, 150);
+        }
+
+        .start-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            padding: 0 18px;
+            height: 30px;
+            background-color: #1A66FF;
+            border-radius: 5px;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .start-btn>a {
+            color: #fff;
+            display: block;
+            height: 100%;
+            line-height: 30px;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="demo-title">
+        <h1>立体面</h1>
+        <h3>从交通银行大厦到国家机关事务管理局东坝服务中心</h3>
+    </div>
+
+    <!-- <div class="start-btn">
+        <a>开始镜头动画</a>
+    </div> -->
+
+    <div id="map"></div>
+    <script src="https://webapi.amap.com/maps?v=2.0&key=48fa32b30729ba479e51346116f6d06f"></script>
+    <script src="https://webapi.amap.com/loca?v=2.0.0&key=48fa32b30729ba479e51346116f6d06f"></script>
+    <script>
+        var map = new AMap.Map('map', {
+            viewMode: '3D',
+            zoom: 11.8,
+            center: [116.360471,39.914749],
+            mapStyle: 'amap://styles/fresh',
+            showBuildingBlock: false,
+            showLabel: false,
+        });
+
+        // 创建一个 Marker 实例：
+        var marker = new AMap.Marker({
+            position: new AMap.LngLat(116.360471, 39.914749),   // 经纬度对象，也可以是经纬度构成的一维数组[116.39, 39.9]
+            title: '交通银行大厦'
+        });
+
+        // 将创建的点标记添加到已有的地图实例：
+        map.add(marker);
+        map.setFeatures(['bg', 'building', 'road']);
+        var loca = window.loca = new Loca.Container({
+            map,
+        });
+
+        loca.ambLight = {
+            intensity: 2.2,
+            color: '#babedc',
+        };
+        loca.dirLight = {
+            intensity: 0.46,
+            color: '#d4d4d4',
+            target: [0, 0, 0],
+            position: [0, -1, 1],
+        };
+        loca.pointLight = {
+            color: 'rgb(15,19,40)',
+            position: [116.360471,39.914749],
+            intensity: 25,
+            // 距离表示从光源到光照强度为 0 的位置，0 就是光不会消失。
+            distance: 3900,
+        };
+        var geo = new Loca.GeoJSONSource({
+            url: 'https://a.amap.com/Loca/static/loca-v2/demos/mock_data/sh_building_center.json',
+        });
+
+        var pl = window.pl = new Loca.PolygonLayer({
+            zIndex: 120,
+            shininess: 10,
+            hasSide: true,
+            cullface: 'back',
+            depth: true,
+        });
+
+        pl.setSource(geo);
+        pl.setStyle({
+            topColor: '#111',
+            height: function (index, feature) {
+                return feature.properties.h;
+            },
+            textureSize: [1000, 820],
+            texture: 'https://a.amap.com/Loca/static/loca-v2/demos/images/windows.jpg',
+        });
+        pl.setLoca(loca);
+
+        var dat = new Loca.Dat();
+        dat.addLight(loca.ambLight, loca, '环境光');
+        dat.addLight(loca.dirLight, loca, '平行光');
+        dat.addLight(loca.pointLight, loca, '点光');
+        dat.addLayer(pl, '楼块');
+
+        map.on('complete', function () {
+            loca.animate.start();
+            // document.querySelector('.start-btn').addEventListener('click', function () {
+            setTimeout(animate, 2000);
+        });
+
+        function animate() {
+            var speed = 1;
+            // 镜头动画
+            map.setZoom(11.8, true);
+            map.setPitch(0, true);
+            map.setCenter([116.360471,39.914749], true);
+            map.setRotation(1, true);
+            pl.hide(1000);
+
+            // 下钻
+            loca.viewControl.addAnimates([{
+                pitch: {
+                    value: 0,
+                    control: [[0, 20], [1, 0]],
+                    timing: [0, 0, 0.8, 1],
+                    duration: 3000 / speed,
+                },
+                zoom: {
+                    value: 15.9,
+                    control: [[0, 12.8], [1, 15.9]],
+                    timing: [0, 0, 0.8, 1],
+                    duration: 3000 / speed,
+                },
+                rotation: {
+                    value: -20,
+                    control: [[0, 20], [1, -20]],
+                    timing: [0, 0, 0.8, 1],
+                    duration: 2000 / speed,
+                },
+            }], function () {
+                setTimeout(function () {
+                    pl.show(2000);
+                }, 3000);
+
+                loca.viewControl.addAnimates([
+                    // 寻迹
+                    {
+                        center: {
+                            // 终点坐标经纬度
+                            value: [116.581423,39.961036],
+                            // 过渡轨迹点
+                            control: [
+                                [116.360471,39.914749], [116.581423,39.961036]
+                            ],
+                            // 动画时间控制点
+                            timing: [0.3, 0, 0.1, 1],
+                            // 持续时间
+                            duration: 8000 / speed,
+                        },
+                        zoom: {
+                            // 终点的地图缩放等级
+                            value: 17,
+                            // x: 时间点 y: 缩放等级
+                            control: [[0.3, 15], [1, 17]],
+                            timing: [0.3, 0, 0.7, 1],
+                            duration: 4000 / speed,
+                        },
+                        // 俯仰角动画
+                        pitch: {
+                            value: 50,
+                            control: [[0.3, 0], [1, 50]],
+                            timing: [0.3, 0, 1, 1],
+                            duration: 3000 / speed,
+                        },
+                        rotation: {
+                            value: -80,
+                            control: [[0, -20], [1, -80]],
+                            timing: [0, 0, 1, 1],
+                            duration: 1000 / speed,
+                        },
+                    }, {
+                        // 环绕
+                        pitch: {
+                            value: 50,
+                            control: [[0, 40], [1, 50]],
+                            timing: [0.3, 0, 1, 1],
+                            duration: 7000 / speed,
+                        },
+                        rotation: {
+                            value: 260,
+                            control: [[0, -80], [1, 260]],
+                            timing: [0, 0, 0.7, 1],
+                            duration: 7000 / speed,
+                        },
+                        zoom: {
+                            value: 17,
+                            control: [[0.3, 16], [1, 17]],
+                            timing: [0.3, 0, 0.9, 1],
+                            duration: 5000 / speed,
+                        },
+                    }, {
+                        // 拉起
+                        center: {
+                            value: [116.75830353710936, 39.56382629027571],
+                            control: [
+                                [116.360588, 39.914711], [116.75830353710936, 39.56382629027571]
+                            ],
+                            timing: [0.3, 0, 0.7, 1],
+                            duration: 2000 / speed,
+                        },
+                        pitch: {
+                            value: 0,
+                            control: [[0, 0], [1, 100]],
+                            timing: [0.1, 0, 0.7, 1],
+                            duration: 2000 / speed,
+                        },
+                        rotation: {
+                            value: 361,
+                            control: [[0, 260], [1, 361]],
+                            timing: [0.3, 0, 0.7, 1],
+                            duration: 2000 / speed,
+                        },
+                        zoom: {
+                            value: 13.8,
+                            control: [[0, 17.5], [1, 13.8]],
+                            timing: [0.3, 0, 0.7, 1],
+                            duration: 2500 / speed,
+                        },
+                    }], function () {
+                        pl.hide(1000);
+                        setTimeout(animate, 2000);
+                        console.log('结束');
+                    });
+            });
+        }
+    </script>
+</body>
+
+</html>
