@@ -60,7 +60,7 @@
 
 <body>
     <div class="demo-title">
-        <h1>立体面</h1>
+        <h1>立体不了啊</h1>
         <h3>从交通银行大厦到国家机关事务管理局东坝服务中心</h3>
     </div>
 
@@ -75,21 +75,68 @@
         var map = new AMap.Map('map', {
             viewMode: '3D',
             zoom: 11.8,
-            center: [116.360471,39.914749],
+            center: [116.360471, 39.914749],
             mapStyle: 'amap://styles/fresh',
             showBuildingBlock: false,
             showLabel: false,
         });
 
         // 创建一个 Marker 实例：
-        var marker = new AMap.Marker({
-            position: new AMap.LngLat(116.360471, 39.914749),   // 经纬度对象，也可以是经纬度构成的一维数组[116.39, 39.9]
+        var markerCommunication = new AMap.Marker({
+            position: new AMap.LngLat(116.360471, 39.914749),
             title: '交通银行大厦'
         });
-
+        var markerDongba = new AMap.Marker({
+            position: new AMap.LngLat(116.581423, 39.961036),
+            title: '交通银行大厦'
+        });
         // 将创建的点标记添加到已有的地图实例：
-        map.add(marker);
-        map.setFeatures(['bg', 'building', 'road']);
+        map.add(markerCommunication);
+        map.add(markerDongba);
+        // 添加文字实例
+        var textCommunication = new AMap.Text({
+            text: '交通银行大厦',
+            anchor: 'center',
+            draggable: true,
+            cursor: 'pointer',
+            angle: 10,
+            style: {
+                'padding': '.75rem 1.25rem',
+                'margin-bottom': '1rem',
+                'border-radius': '.25rem',
+                'background-color': 'white',
+                
+                'border-width': 0,
+                'box-shadow': '0 2px 6px 0 rgba(114, 124, 245, .5)',
+                'text-align': 'center',
+                'font-size': '20px',
+                'color': '#675670'
+            },
+            position: [116.360471, 39.914]
+        });
+        var textDongba = new AMap.Text({
+            text: '国家机关事务管理局东坝服务中心',
+            anchor: 'center',
+            draggable: true,
+            cursor: 'pointer',
+            angle: 10,
+            style: {
+                'padding': '.75rem 1.25rem',
+                'margin-bottom': '1rem',
+                'border-radius': '.25rem',
+                'background-color': 'white',
+                'border-width': 0,
+                'box-shadow': '0 2px 6px 0 rgba(114, 124, 245, .5)',
+                'text-align': 'center',
+                'font-size': '20px',
+                'color': '#675670'
+            },
+            position: [116.581423, 39.963036]
+        });
+        textCommunication.setMap(map);
+        textDongba.setMap(map);
+        
+        
         var loca = window.loca = new Loca.Container({
             map,
         });
@@ -106,7 +153,7 @@
         };
         loca.pointLight = {
             color: 'rgb(15,19,40)',
-            position: [116.360471,39.914749],
+            position: [116.360471, 39.914749],
             intensity: 25,
             // 距离表示从光源到光照强度为 0 的位置，0 就是光不会消失。
             distance: 3900,
@@ -151,11 +198,11 @@
             // 镜头动画
             map.setZoom(11.8, true);
             map.setPitch(0, true);
-            map.setCenter([116.360471,39.914749], true);
+            map.setCenter([116.360471, 39.914749], true);
             map.setRotation(1, true);
             pl.hide(1000);
 
-            // 下钻
+            // 注意要先下钻完成后，等一会再寻迹
             loca.viewControl.addAnimates([{
                 pitch: {
                     value: 0,
@@ -185,10 +232,10 @@
                     {
                         center: {
                             // 终点坐标经纬度
-                            value: [116.581423,39.961036],
+                            value: [116.581423, 39.961036],
                             // 过渡轨迹点
                             control: [
-                                [116.360471,39.914749], [116.581423,39.961036]
+                                [116.360471, 39.914749], [116.581423, 39.961036]
                             ],
                             // 动画时间控制点
                             timing: [0.3, 0, 0.1, 1],
